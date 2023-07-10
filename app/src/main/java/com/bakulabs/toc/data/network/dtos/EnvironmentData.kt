@@ -1,4 +1,4 @@
-package com.bakulabs.toc.models
+package com.bakulabs.toc.data.network.dtos
 
 data class EnvironmentData(
     val temperature: Float,
