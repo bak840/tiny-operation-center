@@ -1,0 +1,3 @@
+package com.bakulabs.toc
+
+const val ENVIRONMENT_API_URL = "http://192.168.1.70/api"

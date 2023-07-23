@@ -1,5 +1,8 @@
 package com.bakulabs.toc.data.network.dtos
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class EnvironmentData(
     val temperature: Float,
     val humidity: Float,

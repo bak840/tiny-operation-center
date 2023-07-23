@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bakulabs.toc.data.network.dtos.EnvironmentData
+import com.bakulabs.toc.ui.components.LoadingScreen
 import com.bakulabs.toc.ui.theme.TinyOperationCenterTheme
 
 @Composable
@@ -28,11 +29,13 @@ fun DashboardScreen(
     dashboardViewModel: DashboardViewModel = viewModel()
 ) {
     val dashboardUiState by dashboardViewModel.uiState.collectAsState()
-    Column() {
-        EnvironmentCard(
-            data = dashboardUiState.environmentData,
-            onRefresh = dashboardViewModel::refreshEnvData
-        )
+    LoadingScreen(isLoading = dashboardUiState.isLoading) {
+        Column() {
+            EnvironmentCard(
+                data = dashboardUiState.environmentData,
+                onRefresh = dashboardViewModel::refreshEnv
+            )
+        }
     }
 }
 
@@ -43,7 +46,7 @@ fun EnvironmentCard(
 ) {
     ElevatedCard {
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = "Environment:", style = MaterialTheme.typography.titleLarge)
+            Text(text = "Environment", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(8.dp))
             Row {
                 Text(
@@ -97,7 +100,7 @@ fun EnvironmentCard(
                     fontSize = 20.sp
                 )
                 Text(
-                    text = if (data != null) "%.2f lux".format(data.illuminance) else " lux",
+                    text = if (data != null) "%.2f lux".format(data.illuminance) else "- lux",
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
