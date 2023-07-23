@@ -6,33 +6,40 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bakulabs.toc.data.network.dtos.EnvironmentData
 import com.bakulabs.toc.ui.theme.TinyOperationCenterTheme
 
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(
+    dashboardViewModel: DashboardViewModel = viewModel()
+) {
+    val dashboardUiState by dashboardViewModel.uiState.collectAsState()
     Column() {
-        EnvironmentCard()
+        EnvironmentCard(
+            data = dashboardUiState.environmentData,
+            onRefresh = dashboardViewModel::refreshEnvData
+        )
     }
 }
 
 @Composable
 fun EnvironmentCard(
-    data: EnvironmentData = EnvironmentData(
-        temperature = 28.0f,
-        humidity = 62.0f,
-        pressure = 100.1f,
-        illuminance = 26.0f
-    )
+    data: EnvironmentData?,
+    onRefresh: () -> Unit
 ) {
     ElevatedCard {
         Column(modifier = Modifier.padding(8.dp)) {
@@ -53,14 +60,14 @@ fun EnvironmentCard(
             Spacer(modifier = Modifier.height(2.dp))
             Row {
                 Text(
-                    text = "${data.temperature} °C",
+                    text = if (data != null) "%.2f °C".format(data.temperature) else "- °C",
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
                 Text(
-                    text = "${data.humidity} %",
+                    text = if (data != null) "%.2f %%".format(data.humidity) else "- %",
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
@@ -83,19 +90,26 @@ fun EnvironmentCard(
             Spacer(modifier = Modifier.height(2.dp))
             Row {
                 Text(
-                    text = "${data.pressure} kPa",
+                    text = if (data != null) "%.2f kPa".format(data.pressure) else "- kPa",
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
                 Text(
-                    text = "${data.illuminance} lux",
+                    text = if (data != null) "%.2f lux".format(data.illuminance) else " lux",
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            FilledTonalButton(
+                onClick = onRefresh,
+                modifier = Modifier.align(CenterHorizontally)
+            ) {
+                Text(text = "Refresh")
             }
         }
     }
@@ -104,8 +118,15 @@ fun EnvironmentCard(
 
 @Preview(showBackground = true)
 @Composable
-fun DashboardPreview() {
+fun EnvironmentCardPreview() {
     TinyOperationCenterTheme {
-        DashboardScreen()
+        EnvironmentCard(
+            data = EnvironmentData(
+                temperature = 28.0f,
+                humidity = 62.0f,
+                pressure = 100.1f,
+                illuminance = 26.0f
+            ), onRefresh = {}
+        )
     }
 }
