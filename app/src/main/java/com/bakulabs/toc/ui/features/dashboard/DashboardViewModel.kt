@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 data class DashboardUiState(
     val isLoading: Boolean = false,
+    val snackBarMessage: String? = null,
     val environmentData: EnvironmentData? = null
 )
 
@@ -23,7 +23,7 @@ class DashboardViewModel : ViewModel() {
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
     fun refreshEnv() {
-        _uiState.value = DashboardUiState(isLoading = true)
+        _uiState.value = _uiState.value.copy(isLoading = true, snackBarMessage = null)
         viewModelScope.launch {
             Fuel.get(ENVIRONMENT_API_URL)
                 .responseObject<EnvironmentData> { _, _, result ->
@@ -37,19 +37,26 @@ class DashboardViewModel : ViewModel() {
                         is Result.Failure -> {
                             val ex = result.getException()
                             println(ex)
-                            _uiState.value = DashboardUiState()
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                snackBarMessage = "Network error"
+                            )
                         }
                     }
                 }
         }
     }
 
-    private fun generateRandomEnvData(): EnvironmentData {
+    fun snackBarMessageShown() {
+        _uiState.value = _uiState.value.copy(isLoading = false)
+    }
+
+    /*private fun generateRandomEnvData(): EnvironmentData {
         return EnvironmentData(
             temperature = Random.nextFloat() * 30,
             humidity = Random.nextFloat() * 100,
             illuminance = Random.nextInt(500).toFloat(),
             pressure = Random.nextInt(1000).toFloat()
         )
-    }
+    }*/
 }

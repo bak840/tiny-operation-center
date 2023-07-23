@@ -7,9 +7,12 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -29,6 +32,8 @@ import com.bakulabs.toc.ui.theme.TinyOperationCenterTheme
 fun TinyOperationCenterApp() {
     TinyOperationCenterTheme {
         val navController = rememberNavController()
+        val snackbarHostState = remember { SnackbarHostState() }
+
         Scaffold(
             topBar = {
                 MediumTopAppBar(title = {
@@ -67,14 +72,17 @@ fun TinyOperationCenterApp() {
                         )
                     }
                 }
-            }
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { innerPadding ->
             NavHost(
                 navController,
                 startDestination = Destination.Dashboard.route,
-                Modifier.padding(innerPadding).padding(12.dp)
+                Modifier
+                    .padding(innerPadding)
+                    .padding(12.dp)
             ) {
-                composable("dashboard") { DashboardScreen() }
+                composable("dashboard") { DashboardScreen(snackbarHostState = snackbarHostState) }
                 composable("flights") { FlightsScreen() }
                 composable("settings") { SettingsScreen() }
             }
